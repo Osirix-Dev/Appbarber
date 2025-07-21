@@ -2,45 +2,45 @@
 
 import React, { useState } from 'react';
 import '../PageContainer.css';
-import ServicesManagement from '../../components/ServicesManagement';
 import ProfileManagement from '../../components/ProfileManagement';
+import ServicesManagement from '../../components/ServicesManagement';
+import AvailabilityManagement from '../../components/AvailabilityManagement';
 
-// 1. Apenas UMA declaração da constante TABS com as duas abas
+// PASSO 1: A constante TABS é declarada AQUI, no topo.
 const TABS = {
     PROFILE: 'Perfil',
-    SERVICES: 'Serviços'
+    SERVICES: 'Serviços',
+    AVAILABILITY: 'Horários'
 };
 
+// PASSO 2: SÓ DEPOIS o componente DashboardPage começa.
 const DashboardPage = () => {
-    // 2. Definindo a aba "Perfil" como a inicial
+    // Agora, quando esta linha for executada, a constante TABS já existe.
     const [activeTab, setActiveTab] = useState(TABS.PROFILE);
 
-    // 3. Apenas UMA função renderContent que lida com os dois casos
     const renderContent = () => {
         switch (activeTab) {
             case TABS.PROFILE:
                 return <ProfileManagement />;
             case TABS.SERVICES:
                 return <ServicesManagement />;
+            case TABS.AVAILABILITY:
+                return <AvailabilityManagement />;
             default:
-                // Define "Perfil" como a tela padrão caso algo dê errado
                 return <ProfileManagement />;
         }
     };
 
     return (
         <div className="page-container" style={{ display: 'flex' }}>
-            {/* Sidebar de Navegação */}
             <aside style={{ width: '240px', background: '#1c1c1c', padding: '20px' }}>
                 <h1 style={{ color: 'white', fontSize: '1.5rem' }}>Meu Painel</h1>
                 <nav>
-                    <ul>
-                        {/* O map funciona com a constante TABS correta */}
+                    <ul style={{ listStyle: 'none', padding: 0 }}>
                         {Object.values(TABS).map(tab => (
-                            <li key={tab} style={{ listStyle: 'none', margin: '10px 0' }}>
+                            <li key={tab} style={{ margin: '10px 0' }}>
                                 <button
                                     onClick={() => setActiveTab(tab)}
-                                    // A classe do botão também funcionará corretamente
                                     className={activeTab === tab ? 'button-primary' : 'button-secondary'}
                                 >
                                     {tab}
@@ -50,8 +50,6 @@ const DashboardPage = () => {
                     </ul>
                 </nav>
             </aside>
-
-            {/* Conteúdo Principal */}
             <main style={{ flex: 1, padding: '20px' }}>
                 {renderContent()}
             </main>

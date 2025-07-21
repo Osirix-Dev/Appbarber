@@ -109,6 +109,25 @@ router.get('/:id', async (req, res) => {
         res.status(500).send('Erro no Servidor');
     }
 });
+router.put('/my-barbershop/hours', auth, async (req, res) => {
+    const { operatingHours } = req.body;
 
+    try {
+        const barbershop = await Barbershop.findOne({ owner: req.user.id });
+
+        if (!barbershop) {
+            return res.status(404).json({ msg: 'Barbearia não encontrada.' });
+        }
+
+        barbershop.operatingHours = operatingHours;
+        await barbershop.save();
+
+        res.json({ msg: 'Horários atualizados com sucesso!', operatingHours: barbershop.operatingHours });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erro no Servidor');
+    }
+});
 
 module.exports = router;
