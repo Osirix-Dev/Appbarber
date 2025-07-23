@@ -4,15 +4,14 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/authMiddleware');
 const admin = require('../middleware/adminMiddleware');
-const User = require('../models/user.model');
-const Barbershop = require('../models/Barbershop.model');
+// A CORREÇÃO ESTÁ AQUI: caminhos 100% iguais aos nomes dos arquivos
+const User = require('../models/user.model.js');
+const Barbershop = require('../models/barbershop.model.js');
 
 // ROTA PARA BUSCAR TODOS OS USUÁRIOS
-// GET /api/admin/users
-// A rota usa os dois middlewares em sequência: primeiro verifica se está logado, depois se é admin.
 router.get('/users', [auth, admin], async (req, res) => {
     try {
-        const users = await User.find().select('-password'); // .select('-password') remove a senha da resposta
+        const users = await User.find().select('-password');
         res.json(users);
     } catch (err) {
         console.error(err.message);
@@ -21,10 +20,8 @@ router.get('/users', [auth, admin], async (req, res) => {
 });
 
 // ROTA PARA BUSCAR TODAS AS BARBEARIAS
-// GET /api/admin/barbershops
 router.get('/barbershops', [auth, admin], async (req, res) => {
     try {
-        // .populate() busca os dados do dono da barbearia e os inclui na resposta
         const barbershops = await Barbershop.find().populate('owner', ['name', 'email']);
         res.json(barbershops);
     } catch (err) {
