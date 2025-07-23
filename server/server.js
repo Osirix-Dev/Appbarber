@@ -6,6 +6,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const adminRoutes = require('./routes/admin.routes');
 
 const app = express();
 
@@ -29,7 +30,7 @@ app.use(express.json());
 app.use('/api/users', require('./routes/user.routes'));
 app.use('/api/barbershops', require('./routes/barbershop.routes'));
 app.use('/api/appointments', require('./routes/appointment.routes'));
-
+app.use('/api/admin', adminRoutes);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

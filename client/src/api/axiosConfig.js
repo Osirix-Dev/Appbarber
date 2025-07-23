@@ -1,21 +1,30 @@
-import axios from 'axios';
-import { getToken } from '../utils/auth';
+// client/src/api/axiosConfig.js
 
-// Cria uma instância do Axios
+import axios from 'axios';
+
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api' // Base da nossa URL da API
+    baseURL: 'http://localhost:5000/api',
+    headers: {
+        'Content-Type': 'application/json'
+    }
 });
 
-// Isso é um "interceptor": ele roda antes de CADA requisição
-api.interceptors.request.use(async (config) => {
-    const token = getToken();
+api.interceptors.request.use(config => {
+    // ADICIONE ESTES CONSOLE.LOG PARA DEBUGAR
+    console.log('>>> Interceptor do Axios foi executado!');
+    const token = localStorage.getItem('token');
+
     if (token) {
-        // Adiciona o cabeçalho 'x-auth-token' com o nosso token
-        config.headers['x-auth-token'] = token;
+        console.log('>>> Token encontrado e sendo enviado!');
+        config.headers.Authorization = `Bearer ${token}`;
+    } else {
+        console.log('>>> Nenhum token encontrado no localStorage.');
     }
+
     return config;
-}, (error) => {
+}, error => {
     return Promise.reject(error);
 });
 
 export default api;
+console.log('--- Módulo axiosConfig.js foi carregado ---');

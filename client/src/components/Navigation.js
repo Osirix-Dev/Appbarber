@@ -32,6 +32,9 @@ const Navigation = () => {
             <div>
                 {isLoggedIn() ? (
                     <>
+                     {user?.role === 'admin' && (
+            <Link to="/admin" className="nav-link admin-link">Admin</Link>
+        )}
                         <span className="nav-welcome">Olá, {user?.name || 'Barbeiro'}</span>
                         <Link to="/dashboard" className="nav-link">Painel</Link>
                         <button onClick={handleLogout} className="nav-link logout-btn">Logout</button>

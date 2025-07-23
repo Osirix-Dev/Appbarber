@@ -3,7 +3,8 @@
 const express = require('express');
 const router = express.Router();
 const Appointment = require('../models/Appointment.model');
-const Barbershop = require('../models/Barbershop.model'); // Precisamos verificar a barbearia
+const Barbershop = require('../models/Barbershop.model');
+const auth = require('../middleware/authMiddleware');
 
 // ROTA PARA CRIAR UM NOVO AGENDAMENTO (PÚBLICA)
 // POST /api/appointments
@@ -17,19 +18,15 @@ router.post('/', async (req, res) => {
         clientPhone
     } = req.body;
 
-    // Validação simples dos dados recebidos
     if (!barbershopId || !serviceName || !date || !time || !clientName || !clientPhone) {
         return res.status(400).json({ msg: 'Por favor, preencha todos os campos.' });
     }
 
     try {
-        // Opcional, mas recomendado: verificar se a barbearia existe
         const barbershop = await Barbershop.findById(barbershopId);
         if (!barbershop) {
             return res.status(404).json({ msg: 'Barbearia não encontrada.' });
         }
-
-        // Futuramente, aqui podemos adicionar a lógica para verificar se o horário já está ocupado
 
         const newAppointment = new Appointment({
             barbershopId,
@@ -41,7 +38,6 @@ router.post('/', async (req, res) => {
         });
 
         await newAppointment.save();
-
         res.status(201).json({ msg: 'Agendamento realizado com sucesso!', appointment: newAppointment });
 
     } catch (err) {
@@ -49,5 +45,25 @@ router.post('/', async (req, res) => {
         res.status(500).send('Erro no Servidor');
     }
 });
+
+
+// ROTA PARA O BARBEIRO BUSCAR SEUS PRÓPRIOS AGENDAMENTOS (PROTEGIDA)
+// GET /api/appointments/my-appointments
+router.get('/my-appointments', auth, async (req, res) => {
+    try {
+        const barbershop = await Barbershop.findOne({ owner: req.user.id });
+        if (!barbershop) {
+            return res.json([]); // Retorna uma lista vazia se não tem barbearia
+        }
+
+        const appointments = await Appointment.find({ barbershopId: barbershop._id }).sort({ date: 1, time: 1 });
+        res.json(appointments);
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erro no Servidor');
+    }
+});
+
 
 module.exports = router;

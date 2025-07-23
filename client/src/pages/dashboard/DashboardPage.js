@@ -5,21 +5,26 @@ import '../PageContainer.css';
 import ProfileManagement from '../../components/ProfileManagement';
 import ServicesManagement from '../../components/ServicesManagement';
 import AvailabilityManagement from '../../components/AvailabilityManagement';
+import AgendaView from '../../components/AgendaView';
 
-// PASSO 1: A constante TABS é declarada AQUI, no topo.
+// A constante TABS com todas as nossas seções
 const TABS = {
+    AGENDA: 'Agenda',
     PROFILE: 'Perfil',
     SERVICES: 'Serviços',
     AVAILABILITY: 'Horários'
 };
 
-// PASSO 2: SÓ DEPOIS o componente DashboardPage começa.
 const DashboardPage = () => {
-    // Agora, quando esta linha for executada, a constante TABS já existe.
-    const [activeTab, setActiveTab] = useState(TABS.PROFILE);
+    const [activeTab, setActiveTab] = useState(TABS.AGENDA);
 
+    // =======================================================================
+    // A CORREÇÃO ESTÁ AQUI: Garantindo que o 'switch' conheça todos os casos
+    // =======================================================================
     const renderContent = () => {
         switch (activeTab) {
+            case TABS.AGENDA:
+                return <AgendaView />;
             case TABS.PROFILE:
                 return <ProfileManagement />;
             case TABS.SERVICES:
@@ -27,7 +32,8 @@ const DashboardPage = () => {
             case TABS.AVAILABILITY:
                 return <AvailabilityManagement />;
             default:
-                return <ProfileManagement />;
+                // Se algo der errado, mostre a agenda
+                return <AgendaView />;
         }
     };
 

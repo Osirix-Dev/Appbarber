@@ -9,32 +9,41 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import BarbershopDetailPage from './pages/BarbershopDetailPage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage'; // Import da nova página
 import PrivateRoute from './components/PrivateRoute';
-import Navigation from './components/Navigation'; // Supondo que você moveu a Navegação para sua própria pasta
+import Navigation from './components/Navigation';
 
 function App() {
   return (
     <Router>
       <div className="app">
-        <Navigation /> {/* Seu componente de navegação que já está funcionando */}
+        <Navigation />
         <main>
           <Routes>
             {/* Rotas Públicas */}
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            
-            {/* AQUI ESTÁ A ROTA QUE ESTAVA FALTANDO */}
             <Route path="/barbershop/:id" element={<BarbershopDetailPage />} />
 
-            {/* Rota Privada */}
+            {/* Rota Privada do Barbeiro */}
             <Route 
-              path="/dashboard/*" // Adicionado "/*" para futuras rotas aninhadas no painel
+              path="/dashboard/*"
               element={
                 <PrivateRoute>
                   <DashboardPage />
                 </PrivateRoute>
               } 
+            />
+
+            {/* Rota Privada do Admin (adicionada aqui dentro) */}
+            <Route 
+              path="/admin/*"
+              element={
+                <PrivateRoute>
+                  <AdminDashboardPage />
+                </PrivateRoute>
+              }
             />
           </Routes>
         </main>
