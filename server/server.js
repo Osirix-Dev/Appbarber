@@ -6,15 +6,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-const adminRoutes = require('./routes/admin.routes');
 
 const app = express();
 
 const connectDB = async () => {
     try {
-        // Conexão simplificada, sem as opções antigas
         await mongoose.connect(process.env.MONGO_URI);
-        
         console.log('MongoDB conectado com sucesso!');
     } catch (err) {
         console.error('Erro ao conectar com o MongoDB:', err.message);
@@ -24,13 +21,27 @@ const connectDB = async () => {
 
 connectDB();
 
-app.use(cors());
+// ======================================================================
+// A CORREÇÃO FINAL ESTÁ AQUI
+// Definimos explicitamente quem pode fazer requisições para nossa API
+const corsOptions = {
+  origin: [
+    'http://localhost:3000', // Permite o acesso do seu ambiente de desenvolvimento local
+    'https://appbarber-rust.vercel.app' // Permite o acesso do seu site publicado
+  ]
+};
+
+app.use(cors(corsOptions));
+// ======================================================================
+
 app.use(express.json());
 
+// --- Definição e Uso das Rotas ---
 app.use('/api/users', require('./routes/user.routes'));
 app.use('/api/barbershops', require('./routes/barbershop.routes'));
 app.use('/api/appointments', require('./routes/appointment.routes'));
-app.use('/api/admin', adminRoutes);
+app.use('/api/admin', require('./routes/admin.routes'));
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
