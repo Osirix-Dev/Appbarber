@@ -2,12 +2,12 @@
 
 const express = require('express');
 const router = express.Router();
-const Appointment = require('../models/Appointment.model');
-const Barbershop = require('../models/Barbershop.model');
+const Appointment = require('../models/Appointment.model.js');
+// A CORREÇÃO ESTÁ AQUI: o caminho agora é 100% igual ao nome do arquivo.
+const Barbershop = require('../models/barbershop.model.js');
 const auth = require('../middleware/authMiddleware');
 
 // ROTA PARA CRIAR UM NOVO AGENDAMENTO (PÚBLICA)
-// POST /api/appointments
 router.post('/', async (req, res) => {
     const {
         barbershopId,
@@ -48,12 +48,11 @@ router.post('/', async (req, res) => {
 
 
 // ROTA PARA O BARBEIRO BUSCAR SEUS PRÓPRIOS AGENDAMENTOS (PROTEGIDA)
-// GET /api/appointments/my-appointments
 router.get('/my-appointments', auth, async (req, res) => {
     try {
         const barbershop = await Barbershop.findOne({ owner: req.user.id });
         if (!barbershop) {
-            return res.json([]); // Retorna uma lista vazia se não tem barbearia
+            return res.json([]); 
         }
 
         const appointments = await Appointment.find({ barbershopId: barbershop._id }).sort({ date: 1, time: 1 });
