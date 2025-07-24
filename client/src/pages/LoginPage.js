@@ -1,55 +1,39 @@
+// client/src/pages/LoginPage.js
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axiosConfig'; // Usando nossa instância configurada do Axios
-import './PageContainer.css'; // Usando nosso container padrão
-import '../App.css'; // Estilos gerais
+import api from '../api/axiosConfig'; // Usa nossa API configurada
+import '../PageContainer.css';
+import '../App.css';
 
 const LoginPage = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [message, setMessage] = useState(''); // Para mostrar mensagens de erro ao usuário
+    const [formData, setFormData] = useState({ email: '', password: '' });
+    const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
+    const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    const onSubmit = async e => {
         e.preventDefault();
-        setMessage(''); // Limpa mensagens antigas
+        setMessage('');
         try {
-            // Usamos a rota da nossa API
-            const res = await api.post('/users/login', { email, password });
-            
-            // Guarda o token no navegador
+            const res = await api.post('/users/login', formData);
             localStorage.setItem('token', res.data.token);
-
-            // Avisa o resto da aplicação que o login mudou (para o Header atualizar)
             window.dispatchEvent(new Event('storage'));
-
-            navigate('/'); // Redireciona o usuário para a página inicial
-
+            navigate('/');
         } catch (err) {
-            // A CORREÇÃO ESTÁ AQUI: usamos a variável 'err' e logamos o objeto inteiro
-            console.error('Erro detalhado do login:', err); 
-            
-            // Mostra uma mensagem de erro amigável para o usuário
-            if (err.response) {
-                // Se o servidor respondeu com um erro (ex: senha errada)
-                setMessage(err.response.data.msg || 'Credenciais inválidas.');
-            } else {
-                // Se não houve resposta (ex: servidor desligado)
-                setMessage('Não foi possível conectar ao servidor. Tente novamente mais tarde.');
-            }
+            console.error('Erro detalhado do login:', err);
+            setMessage(err.response?.data?.msg || 'Não foi possível conectar ao servidor.');
         }
     };
 
     return (
         <div className="page-container">
-            <form className="form-container" onSubmit={handleSubmit} style={{maxWidth: '400px', margin: 'auto'}}>
-                <h2>Login do Barbeiro</h2>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Senha" required />
-                
-                {/* Mostra a mensagem de erro, se houver */}
+            <form className="form-container" onSubmit={onSubmit} style={{maxWidth: '400px', margin: 'auto'}}>
+                <h2>Login</h2>
+                <input type="email" name="email" value={formData.email} onChange={onChange} placeholder="Email" required />
+                <input type="password" name="password" value={formData.password} onChange={onChange} placeholder="Senha" required />
                 {message && <p className="error-message">{message}</p>}
-
                 <button type="submit" className="button-primary">Entrar</button>
             </form>
         </div>

@@ -2,20 +2,23 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../api/axiosConfig'; // 1. IMPORTANDO NOSSA API CONFIGURADA
+import api from '../api/axiosConfig'; // Usa nossa API configurada
 import '../App.css'; 
 
 const HomePage = () => {
     const [barbershops, setBarbershops] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchBarbershops = async () => {
             try {
-                // 2. USANDO O api.get QUE JÁ SABE O ENDEREÇO DO RENDER
+                // Usa o api.get que já sabe o endereço do Render
                 const res = await api.get('/barbershops'); 
                 setBarbershops(res.data);
             } catch (error) {
                 console.error("Erro ao buscar barbearias:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -23,13 +26,15 @@ const HomePage = () => {
     }, []);
 
     return (
-        <div className="app-container">
+        <div className="page-container">
             <header className="app-header">
                 <h1>BarberTime</h1>
                 <p>Encontre a barbearia perfeita para você</p>
             </header>
             <main className="barbershop-gallery">
-                {barbershops.length === 0 ? (
+                {loading ? (
+                    <p>Carregando barbearias...</p>
+                ) : barbershops.length === 0 ? (
                     <p>Nenhuma barbearia cadastrada no momento...</p>
                 ) : (
                     barbershops.map(shop => (

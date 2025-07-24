@@ -2,29 +2,25 @@
 
 import axios from 'axios';
 
+// O endereço do seu back-end que está no ar
+const API_URL = 'https://appbarber-tk2b.onrender.com/api';
+
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api',
+    baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json'
     }
 });
 
+// Interceptador que adiciona o token em cada requisição
 api.interceptors.request.use(config => {
-    // ADICIONE ESTES CONSOLE.LOG PARA DEBUGAR
-    console.log('>>> Interceptor do Axios foi executado!');
     const token = localStorage.getItem('token');
-
     if (token) {
-        console.log('>>> Token encontrado e sendo enviado!');
         config.headers.Authorization = `Bearer ${token}`;
-    } else {
-        console.log('>>> Nenhum token encontrado no localStorage.');
     }
-
     return config;
 }, error => {
     return Promise.reject(error);
 });
 
 export default api;
-console.log('--- Módulo axiosConfig.js foi carregado ---');
