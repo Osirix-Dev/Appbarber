@@ -22,13 +22,22 @@ const connectDB = async () => {
 connectDB();
 
 // ======================================================================
-// A CORREÇÃO FINAL ESTÁ AQUI
+// A MUDANÇA FINAL ESTÁ AQUI
 // Definimos explicitamente quem pode fazer requisições para nossa API
+const allowedOrigins = [
+  'http://localhost:3000', // Acesso para seu desenvolvimento local
+  'https://appbarber-rust.vercel.app' // Acesso para seu site publicado
+];
+
 const corsOptions = {
-  origin: [
-    'http://localhost:3000', // Permite o acesso do seu ambiente de desenvolvimento local
-    'https://appbarber-rust.vercel.app' // Permite o acesso do seu site publicado
-  ]
+  origin: (origin, callback) => {
+    // Permite requisições sem 'origin' (como apps mobile ou Postman) ou se a origem está na lista
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Não permitido pelo CORS'));
+    }
+  }
 };
 
 app.use(cors(corsOptions));
