@@ -1,52 +1,44 @@
+// client/src/pages/RegisterPage.js
+
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Para redirecionar o usuário
-import axios from 'axios'; // Importamos o Axios
-import './Form.css';
+import { useNavigate } from 'react-router-dom';
+import api from '../api/axiosConfig'; // Usa nossa API configurada
+import '../PageContainer.css';
+import '../App.css';
 
 const RegisterPage = () => {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const navigate = useNavigate(); // Hook para controlar a navegação
+    const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+    const [message, setMessage] = useState('');
+    const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault(); // Previne o recarregamento padrão do formulário
+    const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-        const newUser = { name, email, password };
-
+    const onSubmit = async e => {
+        e.preventDefault();
+        setMessage('');
         try {
-            // Faz a chamada POST para nossa API de registro
-            await axios.post('http://localhost:5000/api/users/register', newUser);
-
-            // Se a chamada for bem-sucedida...
+            // Usa o api.post que já sabe o endereço do Render
+            await api.post('/users/register', formData);
+            
             alert('Usuário registrado com sucesso! Por favor, faça o login.');
-            navigate('/login'); // Redireciona o usuário para a página de login
-
-        } catch (error) {
-            // Se a API retornar um erro...
-            console.error('Erro no registro:', error.response.data);
-            // Mostra a mensagem de erro que vem do nosso back-end
-            alert(`Erro no registro: ${error.response.data.msg}`);
+            navigate('/login');
+        } catch (err) {
+            console.error('Erro no registro:', err);
+            setMessage(err.response?.data?.msg || 'Ocorreu um erro no registro.');
         }
     };
 
     return (
-        <div className="form-container">
-            <form className="form-box" onSubmit={handleSubmit}>
+        <div className="page-container">
+            <form className="form-container" onSubmit={onSubmit} style={{maxWidth: '400px', margin: 'auto'}}>
                 <h2>Crie sua Conta de Barbeiro</h2>
-                <div className="input-group">
-                    <label htmlFor="name">Nome Completo</label>
-                    <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} required />
-                </div>
-                <div className="input-group">
-                    <label htmlFor="email">Email</label>
-                    <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                </div>
-                <div className="input-group">
-                    <label htmlFor="password">Senha</label>
-                    <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                </div>
-                <button type="submit" className="form-button">Registrar</button>
+                <input type="text" name="name" value={formData.name} onChange={onChange} placeholder="Nome Completo" required />
+                <input type="email" name="email" value={formData.email} onChange={onChange} placeholder="Email" required />
+                <input type="password" name="password" value={formData.password} onChange={onChange} placeholder="Senha" required />
+                
+                {message && <p className="error-message">{message}</p>}
+
+                <button type="submit" className="button-primary">Registrar</button>
             </form>
         </div>
     );
