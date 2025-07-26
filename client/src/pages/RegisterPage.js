@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axiosConfig'; // Usa nossa API configurada
+import api from '../api/axiosConfig';
 import '../PageContainer.css';
 import '../App.css';
 
@@ -17,9 +17,7 @@ const RegisterPage = () => {
         e.preventDefault();
         setMessage('');
         try {
-            // Usa o api.post que já sabe o endereço do Render
             await api.post('/users/register', formData);
-            
             alert('Usuário registrado com sucesso! Por favor, faça o login.');
             navigate('/login');
         } catch (err) {
@@ -35,9 +33,7 @@ const RegisterPage = () => {
                 <input type="text" name="name" value={formData.name} onChange={onChange} placeholder="Nome Completo" required />
                 <input type="email" name="email" value={formData.email} onChange={onChange} placeholder="Email" required />
                 <input type="password" name="password" value={formData.password} onChange={onChange} placeholder="Senha" required />
-                
                 {message && <p className="error-message">{message}</p>}
-
                 <button type="submit" className="button-primary">Registrar</button>
             </form>
         </div>

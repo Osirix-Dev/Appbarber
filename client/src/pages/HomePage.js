@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../api/axiosConfig'; // Usa nossa API configurada
+import api from '../api/axiosConfig';
 import '../App.css'; 
 
 const HomePage = () => {
@@ -12,7 +12,6 @@ const HomePage = () => {
     useEffect(() => {
         const fetchBarbershops = async () => {
             try {
-                // Usa o api.get que já sabe o endereço do Render
                 const res = await api.get('/barbershops'); 
                 setBarbershops(res.data);
             } catch (error) {
@@ -21,7 +20,6 @@ const HomePage = () => {
                 setLoading(false);
             }
         };
-
         fetchBarbershops();
     }, []);
 

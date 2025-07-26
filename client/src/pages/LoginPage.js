@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axiosConfig'; // Usa nossa API configurada
+import api from '../api/axiosConfig';
 import '../PageContainer.css';
 import '../App.css';
 
