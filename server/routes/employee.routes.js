@@ -58,15 +58,19 @@ router.get('/my-employees', auth, async (req, res) => {
 router.delete('/:id', auth, async (req, res) => {
     try {
         const employee = await Employee.findById(req.params.id);
+
         if (!employee) {
             return res.status(404).json({ msg: 'Funcionário não encontrado.' });
         }
-        // Garante que o usuário logado é o dono do funcionário que está tentando deletar
+        
+        // Garante que o usuário logado é o dono do funcionário
         if (employee.ownerId.toString() !== req.user.id) {
             return res.status(401).json({ msg: 'Não autorizado.' });
         }
-
-        await employee.remove();
+        
+        // A CORREÇÃO ESTÁ AQUI: Usamos o método findByIdAndDelete
+        await Employee.findByIdAndDelete(req.params.id);
+        
         res.json({ msg: 'Funcionário removido com sucesso.' });
 
     } catch (err) {
@@ -74,5 +78,4 @@ router.delete('/:id', auth, async (req, res) => {
         res.status(500).send('Erro no Servidor');
     }
 });
-
 module.exports = router;
