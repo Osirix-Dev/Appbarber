@@ -77,5 +77,13 @@ router.delete('/:id', auth, async (req, res) => {
         console.error(err.message);
         res.status(500).send('Erro no Servidor');
     }
+       try {
+        const employees = await Employee.find({ barbershopId: req.params.shopId });
+        res.json(employees);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erro no Servidor');
+    }
 });
+
 module.exports = router;
