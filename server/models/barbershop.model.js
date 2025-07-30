@@ -2,6 +2,8 @@
 
 const mongoose = require('mongoose');
 
+
+
 const BarbershopSchema = new mongoose.Schema({
     owner: {
         type: mongoose.Schema.Types.ObjectId,
@@ -9,6 +11,10 @@ const BarbershopSchema = new mongoose.Schema({
         required: true
     },
     name: {
+        type: String,
+        required: true
+    },
+      city: { // Adicione este campo
         type: String,
         required: true
     },

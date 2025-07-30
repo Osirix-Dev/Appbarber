@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import './PageContainer.css';
+import FormularioLocalizacao from '../components/FormularioLocalizacao';
 
 const BarbershopDetailPage = () => {
     const { id } = useParams();

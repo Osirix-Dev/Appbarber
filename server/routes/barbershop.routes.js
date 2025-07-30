@@ -3,82 +3,103 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/authMiddleware');
-// A CORREÇÃO ESTÁ AQUI: o caminho agora é 100% igual ao nome do arquivo.
 const Barbershop = require('../models/barbershop.model.js');
 
-// Rota para CRIAR ou ATUALIZAR o perfil da barbearia
+// =======================================================
+// ROTAS DO BARBEIRO (PROTEGIDAS)
+// =======================================================
+
+// ROTA PARA CRIAR OU ATUALIZAR O PERFIL DA BARBEARIA
 router.post('/', auth, async (req, res) => {
-    // ... (o resto do seu código aqui dentro não precisa mudar)
-    const { name, address, phone, services, availability } = req.body;
-    try {
-        let barbershop = await Barbershop.findOne({ owner: req.user.id });
-        if (barbershop) {
-            // Atualiza
-            barbershop = await Barbershop.findOneAndUpdate(
-                { owner: req.user.id },
-                { $set: { name, address, phone, services, availability } },
-                { new: true }
-            );
-            return res.json(barbershop);
-        }
-        // Cria
-        barbershop = new Barbershop({
-            owner: req.user.id,
-            name,
-            address,
-            phone,
-            services,
-            availability
-        });
-        await barbershop.save();
-        res.json(barbershop);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Erro no servidor');
+    const { name, description, imageUrl, city } = req.body;
+    if (!name || !description || !imageUrl || !city) {
+        return res.status(400).json({ msg: 'Por favor, preencha todos os campos.' });
     }
-});
-
-// Rota para PEGAR o perfil da barbearia do usuário logado
-router.get('/me', auth, async (req, res) => {
-    // ... (o resto do seu código aqui dentro não precisa mudar)
     try {
-        const barbershop = await Barbershop.findOne({ owner: req.user.id });
-        if (!barbershop) {
-            return res.status(404).json({ msg: 'Barbearia não encontrada' });
-        }
+        const barbershopFields = { owner: req.user.id, name, description, imageUrl, city };
+        let barbershop = await Barbershop.findOneAndUpdate(
+            { owner: req.user.id },
+            { $set: barbershopFields },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        );
         res.json(barbershop);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Erro no servidor');
-    }
-});
-
-// Rota para PEGAR TODOS os perfis de barbearia (PÚBLICA)
-router.get('/', async (req, res) => {
-    // ... (o resto do seu código aqui dentro não precisa mudar)
-    try {
-        const barbershops = await Barbershop.find();
-        res.json(barbershops);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Erro no Servidor');
     }
 });
 
-// Rota para PEGAR UMA barbearia pelo ID (PÚBLICA)
-router.get('/:id', async (req, res) => {
-    // ... (o resto do seu código aqui dentro não precisa mudar)
+// ROTA PARA ADICIONAR UM SERVIÇO
+router.post('/my-barbershop/services', auth, async (req, res) => {
+    const { name, price, duration } = req.body;
+    if (!name || !price || !duration) {
+        return res.status(400).json({ msg: 'Por favor, preencha todos os campos do serviço.' });
+    }
     try {
-        const barbershop = await Barbershop.findById(req.params.id);
-        if (!barbershop) {
-            return res.status(404).json({ msg: 'Barbearia não encontrada' });
-        }
+        const barbershop = await Barbershop.findOne({ owner: req.user.id });
+        if (!barbershop) return res.status(404).json({ msg: 'Barbearia não encontrada.' });
+
+        barbershop.services.unshift({ name, price, duration });
+        await barbershop.save();
+        res.json(barbershop.services);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erro no Servidor');
+    }
+});
+
+// ROTA PARA ATUALIZAR OS HORÁRIOS
+router.put('/my-barbershop/hours', auth, async (req, res) => {
+    const { operatingHours } = req.body;
+    try {
+        const barbershop = await Barbershop.findOne({ owner: req.user.id });
+        if (!barbershop) return res.status(404).json({ msg: 'Barbearia não encontrada.' });
+        barbershop.operatingHours = operatingHours;
+        await barbershop.save();
+        res.json({ msg: 'Horários atualizados com sucesso!', operatingHours: barbershop.operatingHours });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erro no Servidor');
+    }
+});
+
+// ROTA PARA PEGAR OS DADOS DA BARBEARIA DO USUÁRIO LOGADO
+router.get('/my-barbershop', auth, async (req, res) => {
+    try {
+        const barbershop = await Barbershop.findOne({ owner: req.user.id });
+        if (!barbershop) return res.status(404).json({ msg: 'Nenhuma barbearia encontrada.'});
         res.json(barbershop);
     } catch (err) {
         console.error(err.message);
-        if (err.kind === 'ObjectId') {
-            return res.status(404).json({ msg: 'Barbearia não encontrada' });
-        }
+        res.status(500).send('Erro no Servidor');
+    }
+});
+
+// =======================================================
+// ROTAS PÚBLICAS
+// =======================================================
+
+// ROTA PÚBLICA PARA LISTAR BARBEARIAS (COM OU SEM FILTRO)
+router.get('/', async (req, res) => {
+    try {
+        const { city } = req.query;
+        const filter = city ? { city } : {};
+        const barbershops = await Barbershop.find(filter);
+        res.json(barbershops);
+    } catch(err) {
+        console.error(err.message);
+        res.status(500).send('Erro no Servidor');
+    }
+});
+
+// ROTA PÚBLICA PARA PEGAR OS DETALHES DE UMA BARBEARIA
+router.get('/:id', async (req, res) => {
+    try {
+        const barbershop = await Barbershop.findById(req.params.id);
+        if (!barbershop) return res.status(404).json({ msg: 'Barbearia não encontrada' });
+        res.json(barbershop);
+    } catch (err) {
+        console.error(err.message);
         res.status(500).send('Erro no Servidor');
     }
 });
