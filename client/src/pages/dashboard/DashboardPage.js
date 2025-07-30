@@ -6,12 +6,14 @@ import ProfileManagement from '../../components/ProfileManagement';
 import ServicesManagement from '../../components/ServicesManagement';
 import AvailabilityManagement from '../../components/AvailabilityManagement';
 import AgendaView from '../../components/AgendaView';
+import EmployeeManagement from '../../components/EmployeeManagement';
 
 // A constante TABS com todas as nossas seções
 const TABS = {
     AGENDA: 'Agenda',
     PROFILE: 'Perfil',
     SERVICES: 'Serviços',
+    EMPLOYEES: 'Funcionários',
     AVAILABILITY: 'Horários'
 };
 
@@ -29,6 +31,8 @@ const DashboardPage = () => {
                 return <ProfileManagement />;
             case TABS.SERVICES:
                 return <ServicesManagement />;
+                case TABS.EMPLOYEES: // Adicione este case
+            return <EmployeeManagement />;
             case TABS.AVAILABILITY:
                 return <AvailabilityManagement />;
             default:

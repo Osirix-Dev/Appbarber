@@ -12,6 +12,13 @@ const AppointmentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+     employeeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Employee',
+        required: true
+    },
+    date: { // ...
+    },
     date: { // Armazenará a data, ex: "2025-07-25"
         type: String,
         required: true

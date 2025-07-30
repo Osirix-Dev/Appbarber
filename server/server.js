@@ -6,7 +6,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-
+const employeeRoutes = require('./routes/employee.routes'); // ADICIONE ESTA LINHA
 const app = express();
 
 const connectDB = async () => {
@@ -50,7 +50,7 @@ app.use('/api/users', require('./routes/user.routes'));
 app.use('/api/barbershops', require('./routes/barbershop.routes'));
 app.use('/api/appointments', require('./routes/appointment.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
-
+app.use('/api/employees', employeeRoutes);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
