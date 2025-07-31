@@ -1,42 +1,30 @@
 // server/routes/appointment.routes.js
 
-const express = require('express');
-const router = express.Router();
-const Appointment = require('../models/Appointment.model.js');
-// A CORREÇÃO ESTÁ AQUI: o caminho agora é 100% igual ao nome do arquivo.
-const Barbershop = require('../models/barbershop.model.js');
-const auth = require('../middleware/authMiddleware');
+// (as importações no topo do arquivo continuam as mesmas)
 
-// ROTA PARA CRIAR UM NOVO AGENDAMENTO (PÚBLICA)
+// ROTA PARA CRIAR UM NOVO AGENDAMENTO (AGORA COM VERIFICAÇÃO DE CONFLITO)
 router.post('/', async (req, res) => {
-    const {
-        barbershopId,
-        serviceName,
-        date,
-        time,
-        clientName,
-        clientPhone
-    } = req.body;
+    const { barbershopId, serviceName, employeeId, date, time, clientName, clientPhone } = req.body;
 
-    if (!barbershopId || !serviceName || !date || !time || !clientName || !clientPhone) {
-        return res.status(400).json({ msg: 'Por favor, preencha todos os campos.' });
+    if (!barbershopId || !serviceName || !employeeId || !date || !time || !clientName || !clientPhone) {
+        return res.status(400).json({ msg: 'Todos os campos são obrigatórios.' });
     }
 
     try {
-        const barbershop = await Barbershop.findById(barbershopId);
-        if (!barbershop) {
-            return res.status(404).json({ msg: 'Barbearia não encontrada.' });
+        // VERIFICA SE O HORÁRIO JÁ ESTÁ AGENDADO PARA AQUELE FUNCIONÁRIO NAQUELA DATA
+        const existingAppointment = await Appointment.findOne({
+            employeeId: employeeId,
+            date: date,
+            time: time
+        });
+
+        if (existingAppointment) {
+            return res.status(409).json({ msg: 'Este horário não está mais disponível. Por favor, escolha outro.' }); // 409 Conflict
         }
 
         const newAppointment = new Appointment({
-            barbershopId,
-            serviceName,
-            date,
-            time,
-            clientName,
-            clientPhone
+            barbershopId, serviceName, employeeId, date, time, clientName, clientPhone
         });
-
         await newAppointment.save();
         res.status(201).json({ msg: 'Agendamento realizado com sucesso!', appointment: newAppointment });
 
@@ -45,24 +33,3 @@ router.post('/', async (req, res) => {
         res.status(500).send('Erro no Servidor');
     }
 });
-
-
-// ROTA PARA O BARBEIRO BUSCAR SEUS PRÓPRIOS AGENDAMENTOS (PROTEGIDA)
-router.get('/my-appointments', auth, async (req, res) => {
-    try {
-        const barbershop = await Barbershop.findOne({ owner: req.user.id });
-        if (!barbershop) {
-            return res.json([]); 
-        }
-
-        const appointments = await Appointment.find({ barbershopId: barbershop._id }).sort({ date: 1, time: 1 });
-        res.json(appointments);
-
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Erro no Servidor');
-    }
-});
-
-
-module.exports = router;
