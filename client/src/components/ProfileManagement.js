@@ -15,20 +15,22 @@ const ProfileManagement = () => {
     const [loading, setLoading] = useState(true);
     const [initialCity, setInitialCity] = useState('');
 
+    // A CORREÇÃO ESTÁ AQUI: O array de dependências vazio [] garante
+    // que esta busca de dados só aconteça UMA ÚNICA VEZ.
     useEffect(() => {
         const fetchMyBarbershop = async () => {
             try {
                 const res = await api.get('/barbershops/my-barbershop');
                 if (res.data) {
-                    // Preenche os dados do formulário com os dados existentes
+                    const { name, description, imageUrl, city } = res.data;
                     setFormData({
-                        name: res.data.name || '',
-                        description: res.data.description || '',
-                        imageUrl: res.data.imageUrl || '',
-                        city: res.data.city || ''
+                        name: name || '',
+                        description: description || '',
+                        imageUrl: imageUrl || '',
+                        city: city || ''
                     });
-                    // Guarda a cidade inicial para o FormularioLocalizacao
-                    setInitialCity(res.data.city || '');
+                    // Guarda a cidade inicial para passar para o formulário de localização
+                    setInitialCity(city || '');
                 }
             } catch (error) {
                 if (error.response && error.response.status !== 404) {
@@ -40,7 +42,7 @@ const ProfileManagement = () => {
         };
 
         fetchMyBarbershop();
-    }, []); // O array de dependências vazio [] garante que esta busca só aconteça UMA VEZ.
+    }, []); // <--- ESTE ARRAY VAZIO É A CHAVE DA SOLUÇÃO
 
     const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
