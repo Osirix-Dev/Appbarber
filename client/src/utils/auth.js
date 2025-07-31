@@ -39,4 +39,5 @@ export const getUser = () => {
     } catch (e) {
         return null;
     }
+    
 };

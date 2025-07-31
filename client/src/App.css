@@ -124,3 +124,23 @@ body {
     background-color: #333;
     color: #fff;
 }
+
+.selectable-item {
+  display: flex;
+  justify-content: space-between;
+  background-color: #222;
+  padding: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.selectable-item:hover {
+  border-color: #555;
+}
+
+.selectable-item.selected {
+  border-color: #e50914;
+  background-color: #333;
+}
