@@ -4,25 +4,37 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/authMiddleware');
 const Barbershop = require('../models/barbershop.model.js');
+const upload = require('../config/cloudinary');
 
 // =======================================================
 // ROTAS DO BARBEIRO (PROTEGIDAS)
 // =======================================================
 
 // ROTA PARA CRIAR OU ATUALIZAR O PERFIL DA BARBEARIA
-router.post('/', auth, async (req, res) => {
-    const { name, description, imageUrl, city } = req.body;
-    if (!name || !description || !imageUrl || !city) {
-        return res.status(400).json({ msg: 'Por favor, preencha todos os campos.' });
-    }
+router.post('/', auth, upload.single('imageUrl'), async (req, res) => {
+    const { name, description, city } = req.body;
+
     try {
-        const barbershopFields = { owner: req.user.id, name, description, imageUrl, city };
+        const barbershopFields = {
+            owner: req.user.id,
+            name,
+            description,
+            city
+        };
+
+        // Se um novo arquivo foi enviado, req.file existirá.
+        // A URL da imagem no Cloudinary estará em req.file.path
+        if (req.file) {
+            barbershopFields.imageUrl = req.file.path;
+        }
+
         let barbershop = await Barbershop.findOneAndUpdate(
             { owner: req.user.id },
             { $set: barbershopFields },
             { new: true, upsert: true, setDefaultsOnInsert: true }
         );
         res.json(barbershop);
+
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Erro no Servidor');

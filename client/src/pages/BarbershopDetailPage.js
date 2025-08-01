@@ -48,34 +48,39 @@ const BarbershopDetailPage = () => {
     }, [id]);
 
     // Gera os horários disponíveis sempre que as seleções mudam
-    useEffect(() => {
-        if (!barbershop || !selectedService || !selectedEmployee || !selectedDate) {
-            setAvailableSlots([]);
-            return;
-        }
-        
-        const date = new Date(`${selectedDate}T00:00:00`);
-        const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][date.getDay()];
-        const dayHours = barbershop.operatingHours[dayOfWeek];
+useEffect(() => {
+    // Adicionamos uma verificação extra aqui para barbershop.operatingHours
+    if (!barbershop || !selectedService || !selectedEmployee || !selectedDate || !barbershop.operatingHours) {
+        setAvailableSlots([]);
+        return;
+    }
 
-        if (!dayHours || !dayHours.isOpen) { setAvailableSlots([]); return; }
+    const date = new Date(`${selectedDate}T00:00:00`);
+    const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][date.getDay()];
 
-        const slots = [];
-        const serviceDuration = selectedService.duration;
-        const [startHour, startMinute] = dayHours.startTime.split(':').map(Number);
-        const startTimeInMinutes = startHour * 60 + startMinute;
-        const [endHour, endMinute] = dayHours.endTime.split(':').map(Number);
-        const endTimeInMinutes = endHour * 60 + endMinute;
+    // Acessamos o dia da semana de forma segura
+    const dayHours = barbershop.operatingHours[dayOfWeek];
 
-        for (let time = startTimeInMinutes; time <= endTimeInMinutes - serviceDuration; time += serviceDuration) {
-            const hour = Math.floor(time / 60).toString().padStart(2, '0');
-            const minute = (time % 60).toString().padStart(2, '0');
-            slots.push(`${hour}:${minute}`);
-        }
-        setAvailableSlots(slots);
+    if (!dayHours || !dayHours.isOpen) {
+        setAvailableSlots([]);
+        return;
+    }
 
-    }, [selectedDate, selectedService, selectedEmployee, barbershop]);
+    const slots = [];
+    const serviceDuration = selectedService.duration;
+    const [startHour, startMinute] = dayHours.startTime.split(':').map(Number);
+    const startTimeInMinutes = startHour * 60 + startMinute;
+    const [endHour, endMinute] = dayHours.endTime.split(':').map(Number);
+    const endTimeInMinutes = endHour * 60 + endMinute;
 
+    for (let time = startTimeInMinutes; time <= endTimeInMinutes - serviceDuration; time += serviceDuration) {
+        const hour = Math.floor(time / 60).toString().padStart(2, '0');
+        const minute = (time % 60).toString().padStart(2, '0');
+        slots.push(`${hour}:${minute}`);
+    }
+    setAvailableSlots(slots);
+
+}, [selectedDate, selectedService, selectedEmployee, barbershop]);
     // Limpa seleções se o passo anterior mudar
     const handleServiceSelect = (service) => {
         setSelectedService(service);

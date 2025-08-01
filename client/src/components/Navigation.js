@@ -20,11 +20,11 @@ const Navigation = () => {
         };
     }, []);
 
-    const handleLogout = () => {
-        logout(); // A função logout agora não precisa do navigate
-        setUser(null);
-        navigate('/'); // Redireciona para a home após o logout
-    };
+  const handleLogout = () => {
+    logout(); // Chamada correta, sem parâmetros
+    setUser(null);
+    // O redirecionamento já é feito dentro da função logout no auth.js
+};
 
     return (
         <nav className="main-nav">

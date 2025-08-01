@@ -1,3 +1,9 @@
+/* client/src/App.css (VERSÃO RESPONSIVA) */
+
+/* ========================================= */
+/* ESTILOS GERAIS (BASE - DESKTOP)   */
+/* ========================================= */
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -7,123 +13,274 @@ body {
   color: white;
 }
 
-.app-header {
-  padding: 20px 60px;
-  background-color: #141414;
+.page-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
 }
 
-.app-header h1 {
-  margin: 0;
-  font-size: 2.5rem;
-  color: #e50914; /* Cor vermelha do Netflix */
+.button-primary {
+  background-color: #e50914;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+}
+.button-primary:hover {
+  background-color: #f6121d;
 }
 
-.barbershop-gallery {
-  padding: 20px 60px;
+.button-secondary {
+  background-color: #333;
+  color: white;
+  border: 1px solid #555;
+  padding: 12px 20px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+}
+.button-secondary:hover {
+  background-color: #444;
+}
+
+.error-message {
+  color: #e74c3c;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* ========================================= */
+/* NAVEGAÇÃO (HEADER)              */
+/* ========================================= */
+.main-nav {
   display: flex;
-  flex-wrap: wrap; /* Permite que os cards quebrem a linha */
-  gap: 20px; /* Espaço entre os cards */
-  justify-content: center; /* Centraliza os cards caso não preencham a linha toda */
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 60px;
+  background-color: #1c1c1c;
+  border-bottom: 1px solid #333;
+}
+.nav-logo {
+  font-size: 1.8rem;
+  color: #e50914;
+  font-weight: bold;
+  text-decoration: none;
+}
+.main-nav div {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.register-link {
+  background-color: #e50914;
+  padding: 10px 15px;
+  border-radius: 4px;
 }
 
+/* ========================================= */
+/* PÁGINA INICIAL (HOMEPAGE)         */
+/* ========================================= */
+.app-header {
+  padding: 20px 0;
+  text-align: center;
+}
+.barbershop-gallery {
+  padding: 20px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
 .barbershop-card {
   background-color: #222;
   border-radius: 8px;
-  overflow: hidden; /* Garante que a imagem não saia do card */
+  overflow: hidden;
   width: 300px;
   transition: transform 0.2s ease-in-out;
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0,0,0,0.5);
 }
-
 .barbershop-card:hover {
-  transform: scale(1.05); /* Efeito de zoom ao passar o mouse */
+  transform: scale(1.05);
 }
-
 .barbershop-image {
   width: 100%;
   height: 170px;
-  object-fit: cover; /* Faz a imagem cobrir o espaço sem distorcer */
+  object-fit: cover;
 }
-
 .barbershop-info {
   padding: 15px;
 }
 
-.barbershop-info h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
+/* ========================================= */
+/* FORMULÁRIOS                     */
+/* ========================================= */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.form-container input,
+.form-container textarea,
+.form-container select {
+  width: 100%;
+  padding: 12px;
+  background-color: #333;
+  border: 1px solid #555;
+  color: white;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box; /* Garante que o padding não aumente a largura */
 }
 
-.barbershop-info p {
-  font-size: 0.9rem;
-  color: #aaa;
-  height: 40px; /* Adiciona uma altura fixa para alinhar os botões */
+/* ========================================= */
+/* ITENS SELECIONÁVEIS             */
+/* ========================================= */
+.selectable-item {
+  display: flex;
+  justify-content: space-between;
+  background-color: #222;
+  padding: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+.selectable-item:hover {
+  border-color: #555;
+}
+.selectable-item.selected {
+  border-color: #e50914;
+  background-color: #333;
 }
 
-.view-button {
-    background-color: #e50914;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
+
+/* ################################################################## */
+/* ####################   REGRAS RESPONSIVAS   #################### */
+/* ################################################################## */
+
+/* Para telas de tablet e celular (até 768px de largura) */
+@media (max-width: 768px) {
+
+  /* Ajusta o espaçamento geral */
+  .page-container {
+    padding: 1rem;
+  }
+  
+  .main-nav {
+    padding: 1rem 20px;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  /* Ajusta os cards para ficarem centralizados */
+  .barbershop-gallery {
+    justify-content: center;
+  }
+  
+  .barbershop-card {
+    width: 90%; /* Ocupa quase toda a largura */
+    max-width: 320px; /* Mas não fica excessivamente grande */
+  }
+
+  /* Ajusta os formulários para ocupar mais espaço */
+  .form-container {
     width: 100%;
-    margin-top: 10px;
+  }
+  
+  /* Ajusta o layout do painel */
+  .dashboard-container { /* Adicione esta classe no div principal do DashboardPage.js se necessário */
+    flex-direction: column;
+  }
+  
+  .dashboard-sidebar { /* Adicione esta classe na <aside> do DashboardPage.js */
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+}
+/* ========================================= */
+/* ESTILO PARA MENUS SUSPENSOS (SELECT) - VERSÃO MELHORADA */
+/* ========================================= */
+
+/* O "invólucro" que vai segurar o menu e a seta */
+.select-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
 }
 
-.view-button:hover {
-    background-color: #f6121d;
-}
-/* ... (todo o seu CSS antigo) ... */
-
-/* Estilos da Barra de Navegação */
-.main-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 60px;
-    background-color: #181818;
-    border-bottom: 1px solid #303030;
-}
-.nav-logo {
-    font-size: 1.8rem;
-    color: #e50914;
-    font-weight: bold;
-    text-decoration: none;
-}
-.nav-link {
-    color: #fff;
-    text-decoration: none;
-    margin-left: 20px;
-    font-weight: bold;
-}
-.register-link {
-    background-color: #e50914;
-    padding: 8px 15px;
-    border-radius: 4px;
-}
-.nav-welcome {
-    color: #ccc;
-    margin-right: 15px;
+/* A seta, posicionada no canto direito do invólucro */
+.select-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  width: 1em;
+  height: 1em;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  pointer-events: none; /* Faz com que o clique passe direto para o select */
 }
 
-.logout-btn {
-    background: none;
-    border: 1px solid #aaa;
-    color: #aaa;
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-left: 20px;
+/* O menu em si, agora com espaço para a seta não ser sobreposta */
+.custom-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #333;
+  border: 1px solid #555;
+  color: white;
+  padding: 12px 40px 12px 12px; /* Aumenta o padding direito */
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.logout-btn:hover {
-    background-color: #333;
-    color: #fff;
+.custom-select:hover {
+  border-color: #777;
 }
+
+/* NOVO: Estilo para o input de data, para combinar com o tema */
+.custom-date-input {
+  background-color: #333;
+  border: 1px solid #555;
+  color: white;
+  padding: 11px;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: inherit;
+  cursor: pointer;
+  line-height: 1.5;
+}
+/* Muda a cor do ícone do calendário no Chrome/Edge */
+.custom-date-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+/* Adicione no final do client/src/App.css */
 
 .selectable-item {
   display: flex;

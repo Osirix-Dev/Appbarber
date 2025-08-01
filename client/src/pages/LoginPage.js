@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
+import { jwtDecode } from 'jwt-decode'; // Importa o decodificador de token
 import './PageContainer.css';
 import '../App.css';
 
@@ -18,9 +19,27 @@ const LoginPage = () => {
         setMessage('');
         try {
             const res = await api.post('/users/login', formData);
-            localStorage.setItem('token', res.data.token);
+            const token = res.data.token;
+            
+            // 1. Guarda o token no navegador
+            localStorage.setItem('token', token);
+
+            // 2. Avisa o resto da aplicação que o login mudou
             window.dispatchEvent(new Event('storage'));
-            navigate('/');
+
+            // 3. Decodifica o token para ler o cargo (role) do usuário
+            const decodedToken = jwtDecode(token);
+            const userRole = decodedToken.user.role;
+
+            // 4. Redireciona o usuário com base no seu cargo
+            if (userRole === 'admin') {
+                navigate('/admin');
+            } else if (userRole === 'barber') {
+                navigate('/dashboard');
+            } else {
+                navigate('/'); // Para usuários normais ou como fallback
+            }
+
         } catch (err) {
             console.error('Erro detalhado do login:', err);
             setMessage(err.response?.data?.msg || 'Não foi possível conectar ao servidor.');

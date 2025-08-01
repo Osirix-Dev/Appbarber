@@ -1,3 +1,5 @@
+// client/src/utils/auth.js
+
 import { jwtDecode } from 'jwt-decode';
 
 // Função para pegar o token do localStorage
@@ -11,11 +13,9 @@ export const isLoggedIn = () => {
     if (!token) return false;
 
     try {
-        // Decodifica o token para pegar a data de expiração
-        const { exp } = jwtDecode(token);
-        // Verifica se a data de expiração é no futuro
-        if (Date.now() >= exp * 1000) {
-            localStorage.removeItem('token'); // Remove o token expirado
+        const decoded = jwtDecode(token);
+        if (Date.now() >= decoded.exp * 1000) {
+            localStorage.removeItem('token');
             return false;
         }
     } catch (e) {
@@ -25,9 +25,9 @@ export const isLoggedIn = () => {
 };
 
 // Função para fazer logout
-export const logout = (navigate) => {
-    localStorage.removeItem('token'); // Remove o token
-    navigate('/'); // Redireciona para a home
+export const logout = () => {
+    localStorage.removeItem('token');
+    window.location.href = '/'; 
 };
 
 // Função para pegar os dados do usuário do token
@@ -35,9 +35,8 @@ export const getUser = () => {
     const token = getToken();
     if (!token) return null;
     try {
-        return jwtDecode(token).user; // Retorna o objeto 'user' que colocamos no payload do token
+        return jwtDecode(token).user; 
     } catch (e) {
         return null;
     }
-    
 };
