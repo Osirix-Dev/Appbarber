@@ -1,10 +1,7 @@
 // client/src/components/ServicesManagement.js
 
 import React, { useState, useEffect } from 'react';
-// Caminho CORRETO para o axiosConfig
-import api from '../api/axiosConfig'; 
-// Caminho CORRETO para o PageContainer.css
-import '../pages/PageContainer.css'; 
+import api from '../api/axiosConfig';
 
 const ServicesManagement = () => {
     const [services, setServices] = useState([]);
@@ -12,21 +9,20 @@ const ServicesManagement = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
 
-    // Busca os serviços atuais da barbearia
+    // Função para buscar os serviços
+    const fetchServices = async () => {
+        try {
+            const res = await api.get('/barbershops/my-barbershop');
+            setServices(res.data.services || []);
+        } catch (err) {
+            console.error("Erro ao buscar serviços:", err);
+            setError('Não foi possível carregar os serviços.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchServices = async () => {
-            try {
-                // Para este componente funcionar, você precisa estar logado com um barbeiro
-                // que tenha uma barbearia cadastrada.
-                const res = await api.get('/barbershops/my-barbershop');
-                setServices(res.data.services || []);
-            } catch (err) {
-                console.error("Erro ao buscar serviços:", err);
-                setError('Não foi possível carregar os serviços. Você já criou o perfil da sua barbearia?');
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchServices();
     }, []);
 
@@ -37,17 +33,26 @@ const ServicesManagement = () => {
         setError('');
         try {
             const res = await api.post('/barbershops/my-barbershop/services', formData);
-            setServices(res.data); // A API retorna a nova lista de serviços
-            setFormData({ name: '', price: '', duration: '' }); // Limpa o formulário
+            setServices(res.data);
+            setFormData({ name: '', price: '', duration: '' });
         } catch (err) {
             setError(err.response?.data?.msg || 'Ocorreu um erro ao adicionar o serviço.');
-            console.error(err);
         }
     };
 
-    if (loading) {
-        return <p>Carregando serviços...</p>
-    }
+    // NOVA FUNÇÃO PARA DELETAR
+    const handleDelete = async (serviceId) => {
+        if (window.confirm('Tem certeza que deseja remover este serviço?')) {
+            try {
+                const res = await api.delete(`/barbershops/my-barbershop/services/${serviceId}`);
+                setServices(res.data.services); // Atualiza a lista com a resposta da API
+            } catch (err) {
+                setError(err.response?.data?.msg || 'Erro ao remover serviço.');
+            }
+        }
+    };
+
+    if (loading) return <p>Carregando serviços...</p>;
 
     return (
         <div>
@@ -66,15 +71,20 @@ const ServicesManagement = () => {
 
             <div className="services-list">
                 <h3>Serviços Cadastrados</h3>
-                {services.length === 0 && !error ? (
+                {services.length === 0 ? (
                     <p>Nenhum serviço cadastrado ainda.</p>
                 ) : (
                     <ul style={{ listStyle: 'none', padding: 0 }}>
-                        {services.map((service, index) => (
-                            <li key={index} style={{ background: '#222', padding: '15px', borderRadius: '8px', marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                                <span>{service.name}</span>
-                                <span>R$ {service.price.toFixed(2)}</span>
-                                <span>{service.duration} min</span>
+                        {services.map((service) => (
+                            <li key={service._id} style={{ background: '#222', padding: '15px', borderRadius: '8px', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <span style={{ fontWeight: 'bold' }}>{service.name}</span><br />
+                                    <span style={{ color: '#aaa' }}>R$ {service.price.toFixed(2)} - {service.duration} min</span>
+                                </div>
+                                {/* BOTÃO DE REMOVER ADICIONADO AQUI */}
+                                <button onClick={() => handleDelete(service._id)} style={{ background: '#c0392b', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer' }}>
+                                    Remover
+                                </button>
                             </li>
                         ))}
                     </ul>
