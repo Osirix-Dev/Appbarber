@@ -18,6 +18,8 @@ const ServicesManagement = () => {
                     api.get('/barbershops/my-barbershop'),
                     api.get('/employees/my-employees')
                 ]);
+                
+                await servicesRes.data.populate('services.employees', 'name');
                 setServices(servicesRes.data.services || []);
                 setEmployees(employeesRes.data || []);
             } catch (err) {
@@ -54,7 +56,7 @@ const ServicesManagement = () => {
         if (window.confirm('Tem certeza que deseja remover este serviço?')) {
             try {
                 const res = await api.delete(`/barbershops/my-barbershop/services/${serviceId}`);
-                setServices(res.data?.services || []); // Corrigido para acessar a propriedade correta
+                setServices(res.data?.services || []);
             } catch (err) {
                 setError(err.response?.data?.msg || 'Erro ao remover serviço.');
             }
@@ -74,18 +76,20 @@ const ServicesManagement = () => {
                     <input type="number" name="price" value={formData.price} onChange={onChange} placeholder="Preço (ex: 40)" required style={{marginTop: '1rem'}} />
                     <input type="number" name="duration" value={formData.duration} onChange={onChange} placeholder="Duração em minutos (ex: 30)" required style={{marginTop: '1rem'}} />
 
-                    <div style={{ marginTop: '1rem' }}>
-                        <label>Quais funcionários realizam este serviço?</label>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', background: '#333', padding: '15px', borderRadius: '8px' }}>
-                            {employees.length > 0 ? employees.map(emp => (
-                                <div key={emp._id}>
-                                    <input type="checkbox" id={emp._id} value={emp._id} checked={selectedEmployees.includes(emp._id)} onChange={() => handleEmployeeSelection(emp._id)} />
-                                    <label htmlFor={emp._id} style={{ marginLeft: '10px' }}>{emp.name}</label>
-                                </div>
-                            )) : <p>Nenhum funcionário cadastrado.</p>}
+                    <div style={{ marginTop: '1.5rem' }}>
+                        <label style={{fontWeight: 'bold'}}>Quais funcionários realizam este serviço?</label>
+                        <div className="checkbox-list-container">
+                            <div className="checkbox-list">
+                                {employees.length > 0 ? employees.map(emp => (
+                                    <div key={emp._id} className="checkbox-item">
+                                        <input type="checkbox" id={emp._id} value={emp._id} checked={selectedEmployees.includes(emp._id)} onChange={() => handleEmployeeSelection(emp._id)} />
+                                        <label htmlFor={emp._id}>{emp.name}</label>
+                                    </div>
+                                )) : <p>Nenhum funcionário cadastrado.</p>}
+                            </div>
                         </div>
                     </div>
-                    <button type="submit" className="button-primary" style={{marginTop: '1rem'}}>Adicionar Serviço</button>
+                    <button type="submit" className="button-primary" style={{marginTop: '1.5rem'}}>Adicionar Serviço</button>
                     {error && <p className="error-message">{error}</p>}
                 </form>
             </div>
@@ -97,7 +101,6 @@ const ServicesManagement = () => {
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         {services.map((service) => (
-                            // AQUI ESTÁ A CORREÇÃO: Usamos </div> para fechar o card
                             <div key={service._id} className="service-card">
                                 <div className="service-info">
                                     <p className="service-name">{service.name}</p>

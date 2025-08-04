@@ -40,5 +40,29 @@ router.get('/my-appointments', auth, async (req, res) => {
         res.status(500).send('Erro no Servidor');
     }
 });
+// ROTA PÚBLICA PARA BUSCAR HORÁRIOS JÁ AGENDADOS
+// GET /api/appointments/booked?employeeId=...&date=...
+router.get('/booked', async (req, res) => {
+    const { employeeId, date } = req.query;
+
+    if (!employeeId || !date) {
+        return res.status(400).json({ msg: 'ID do funcionário e data são obrigatórios.' });
+    }
+
+    try {
+        const appointments = await Appointment.find({
+            employeeId: employeeId,
+            date: date
+        });
+
+        // Retorna apenas a lista de horários (ex: ["09:30", "10:00"])
+        const bookedTimes = appointments.map(appt => appt.time);
+        res.json(bookedTimes);
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erro no Servidor');
+    }
+});
 
 module.exports = router;

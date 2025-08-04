@@ -408,3 +408,60 @@ body {
 .service-actions .delete-btn:hover {
   background-color: #e74c3c;
 }
+/* =================================================== */
+/* ESTILOS PARA LISTA DE CHECKBOX (SERVIÇOS -> FUNCIONÁRIOS) */
+/* =================================================== */
+
+.checkbox-list-container {
+  background-color: #333;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 10px;
+  border: 1px solid #444;
+}
+
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-item input[type="checkbox"] {
+  /* Estilo customizado para o checkbox */
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background-color: #444;
+  border: 1px solid #666;
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  outline: none;
+}
+
+.checkbox-item input[type="checkbox"]:checked {
+  background-color: #e50914; /* Cor primária ao selecionar */
+  border-color: #e50914;
+}
+
+/* Adiciona o "check" (V) quando selecionado */
+.checkbox-item input[type="checkbox"]:checked::after {
+  content: '✔';
+  font-size: 14px;
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.checkbox-item label {
+  margin-left: 10px;
+  cursor: pointer;
+}
