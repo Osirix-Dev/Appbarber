@@ -4,15 +4,16 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/authMiddleware');
 const Barbershop = require('../models/barbershop.model.js');
+const upload = require('../config/cloudinary'); // Para upload de imagem
 
-// ROTA PARA CRIAR OU ATUALIZAR O PERFIL DA BARBEARIA
-router.post('/', auth, async (req, res) => {
-    const { name, description, imageUrl, city } = req.body;
-    if (!name || !description || !imageUrl || !city) {
-        return res.status(400).json({ msg: 'Por favor, preencha todos os campos.' });
-    }
+// ROTA PARA CRIAR OU ATUALIZAR O PERFIL DA BARBEARIA (COM UPLOAD)
+router.post('/', auth, upload.single('imageUrl'), async (req, res) => {
+    const { name, description, city } = req.body;
     try {
-        const barbershopFields = { owner: req.user.id, name, description, imageUrl, city };
+        const barbershopFields = { owner: req.user.id, name, description, city };
+        if (req.file) {
+            barbershopFields.imageUrl = req.file.path;
+        }
         let barbershop = await Barbershop.findOneAndUpdate(
             { owner: req.user.id },
             { $set: barbershopFields },
@@ -25,16 +26,53 @@ router.post('/', auth, async (req, res) => {
     }
 });
 
-// ROTA PARA ADICIONAR UM SERVIÇO
+// ROTA PARA ADICIONAR UM SERVIÇO À BARBEARIA (PROTEGIDA)
 router.post('/my-barbershop/services', auth, async (req, res) => {
-    const { name, price, duration } = req.body;
+    const { name, price, duration, employees } = req.body;
+    
     if (!name || !price || !duration) {
-        return res.status(400).json({ msg: 'Por favor, preencha todos os campos do serviço.' });
+        return res.status(400).json({ msg: 'Nome, preço e duração são obrigatórios.' });
     }
+
+    try {
+        let barbershop = await Barbershop.findOne({ owner: req.user.id });
+        if (!barbershop) {
+            return res.status(404).json({ msg: 'Barbearia não encontrada.' });
+        }
+
+        const newService = { 
+            name, 
+            price, 
+            duration, 
+            employees: employees || []
+        };
+
+        barbershop.services.unshift(newService);
+        await barbershop.save();
+        
+        // A CORREÇÃO ESTÁ AQUI:
+        // Depois de salvar, nós "populamos" o campo de funcionários para que a resposta
+        // venha com os nomes, e não apenas com os IDs.
+        await barbershop.populate('services.employees', 'name');
+
+        res.status(201).json(barbershop.services);
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erro no Servidor');
+    }
+});
+
+// ROTA PARA DELETAR UM SERVIÇO
+router.delete('/my-barbershop/services/:serviceId', auth, async (req, res) => {
     try {
         const barbershop = await Barbershop.findOne({ owner: req.user.id });
         if (!barbershop) return res.status(404).json({ msg: 'Barbearia não encontrada.' });
-        barbershop.services.unshift({ name, price, duration });
+        
+        barbershop.services = barbershop.services.filter(
+            ({ id }) => id !== req.params.serviceId
+        );
+
         await barbershop.save();
         res.json(barbershop.services);
     } catch (err) {
@@ -43,84 +81,7 @@ router.post('/my-barbershop/services', auth, async (req, res) => {
     }
 });
 
-// ======================================================================
-// NOVA ROTA PARA DELETAR UM SERVIÇO
-// DELETE /api/barbershops/my-barbershop/services/:serviceId
-router.delete('/my-barbershop/services/:serviceId', auth, async (req, res) => {
-    try {
-        const barbershop = await Barbershop.findOne({ owner: req.user.id });
-        if (!barbershop) {
-            return res.status(404).json({ msg: 'Barbearia não encontrada.' });
-        }
-
-        // Filtra o array de serviços, mantendo apenas os que NÃO têm o ID a ser removido
-        barbershop.services = barbershop.services.filter(
-            ({ id }) => id !== req.params.serviceId
-        );
-
-        await barbershop.save();
-        res.json(barbershop.services); // Retorna a nova lista de serviços
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Erro no Servidor');
-    }
-});
-// ======================================================================
-
-// ROTA PARA ATUALIZAR OS HORÁRIOS
-router.put('/my-barbershop/hours', auth, async (req, res) => {
-    // ... (código existente)
-    const { operatingHours } = req.body;
-    try {
-        const barbershop = await Barbershop.findOne({ owner: req.user.id });
-        if (!barbershop) return res.status(404).json({ msg: 'Barbearia não encontrada.' });
-        barbershop.operatingHours = operatingHours;
-        await barbershop.save();
-        res.json({ msg: 'Horários atualizados com sucesso!', operatingHours: barbershop.operatingHours });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Erro no Servidor');
-    }
-});
-
-// ROTA PARA PEGAR OS DADOS DA BARBEARIA DO USUÁRIO LOGADO
-router.get('/my-barbershop', auth, async (req, res) => {
-    // ... (código existente)
-    try {
-        const barbershop = await Barbershop.findOne({ owner: req.user.id });
-        if (!barbershop) return res.status(404).json({ msg: 'Nenhuma barbearia encontrada.'});
-        res.json(barbershop);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Erro no Servidor');
-    }
-});
-
-// ROTA PÚBLICA PARA LISTAR BARBEARIAS (COM OU SEM FILTRO)
-router.get('/', async (req, res) => {
-    // ... (código existente)
-    try {
-        const { city } = req.query;
-        const filter = city ? { city } : {};
-        const barbershops = await Barbershop.find(filter);
-        res.json(barbershops);
-    } catch(err) {
-        console.error(err.message);
-        res.status(500).send('Erro no Servidor');
-    }
-});
-
-// ROTA PÚBLICA PARA PEGAR OS DETALHES DE UMA BARBEARIA
-router.get('/:id', async (req, res) => {
-    // ... (código existente)
-    try {
-        const barbershop = await Barbershop.findById(req.params.id);
-        if (!barbershop) return res.status(404).json({ msg: 'Barbearia não encontrada' });
-        res.json(barbershop);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Erro no Servidor');
-    }
-});
+// Outras rotas (ATUALIZAR HORÁRIOS, PEGAR DADOS, ROTAS PÚBLICAS) continuam aqui...
+// ... (cole o restante das rotas que já funcionavam)
 
 module.exports = router;

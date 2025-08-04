@@ -301,3 +301,110 @@ body {
   border-color: #e50914;
   background-color: #333;
 }
+/* ========================================= */
+/* ESTILOS PARA O PAINEL - AGENDA VIEW       */
+/* ========================================= */
+
+.filter-section {
+  background-color: #1c1c1c;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  display: flex;
+  flex-wrap: wrap; /* Permite que os filtros quebrem a linha em telas menores */
+  align-items: flex-end;
+  gap: 20px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-group label {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-bottom: 5px;
+}
+
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.appointment-card {
+  background-color: #222;
+  border-left: 4px solid #e50914; /* Destaque vermelho à esquerda */
+  padding: 20px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.appointment-card:hover {
+  background-color: #2a2a2a;
+}
+
+.appointment-header {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0 0 15px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #333;
+}
+
+.appointment-details p {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Espaço entre o ícone e o texto */
+}
+/* ========================================= */
+/* ESTILOS PARA O PAINEL - SERVICE MANAGEMENT */
+/* ========================================= */
+
+.service-card {
+  background-color: #222;
+  border-left: 4px solid #3498db; /* Destaque azul para diferenciar */
+  padding: 20px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* Permite quebrar a linha em telas menores */
+  gap: 15px;
+}
+
+.service-info {
+  flex-grow: 1; /* Faz esta parte ocupar o máximo de espaço possível */
+}
+
+.service-info .service-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0 0 5px 0;
+}
+
+.service-info .service-details {
+  color: #aaa;
+  margin: 0;
+}
+
+.service-info .service-employees {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin-top: 15px;
+}
+
+.service-actions .delete-btn {
+  background-color: #c0392b;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.service-actions .delete-btn:hover {
+  background-color: #e74c3c;
+}

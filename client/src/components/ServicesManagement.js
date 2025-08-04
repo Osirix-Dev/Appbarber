@@ -8,86 +8,112 @@ const ServicesManagement = () => {
     const [formData, setFormData] = useState({ name: '', price: '', duration: '' });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
-
-    // Função para buscar os serviços
-    const fetchServices = async () => {
-        try {
-            const res = await api.get('/barbershops/my-barbershop');
-            setServices(res.data.services || []);
-        } catch (err) {
-            console.error("Erro ao buscar serviços:", err);
-            setError('Não foi possível carregar os serviços.');
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [employees, setEmployees] = useState([]);
+    const [selectedEmployees, setSelectedEmployees] = useState([]);
 
     useEffect(() => {
-        fetchServices();
+        const fetchData = async () => {
+            try {
+                const [servicesRes, employeesRes] = await Promise.all([
+                    api.get('/barbershops/my-barbershop'),
+                    api.get('/employees/my-employees')
+                ]);
+                setServices(servicesRes.data.services || []);
+                setEmployees(employeesRes.data || []);
+            } catch (err) {
+                console.error("Erro ao buscar dados:", err);
+                setError('Não foi possível carregar os dados da página.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
     }, []);
 
     const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    const handleEmployeeSelection = (employeeId) => {
+        setSelectedEmployees(prev => prev.includes(employeeId) ? prev.filter(id => id !== employeeId) : [...prev, employeeId]);
+    };
 
     const onSubmit = async e => {
         e.preventDefault();
         setError('');
         try {
-            const res = await api.post('/barbershops/my-barbershop/services', formData);
-            setServices(res.data);
+            const serviceData = { ...formData, employees: selectedEmployees };
+            const res = await api.post('/barbershops/my-barbershop/services', serviceData);
+            setServices(res.data || []);
             setFormData({ name: '', price: '', duration: '' });
+            setSelectedEmployees([]);
         } catch (err) {
             setError(err.response?.data?.msg || 'Ocorreu um erro ao adicionar o serviço.');
         }
     };
-
-    // NOVA FUNÇÃO PARA DELETAR
+    
     const handleDelete = async (serviceId) => {
         if (window.confirm('Tem certeza que deseja remover este serviço?')) {
             try {
                 const res = await api.delete(`/barbershops/my-barbershop/services/${serviceId}`);
-                setServices(res.data.services); // Atualiza a lista com a resposta da API
+                setServices(res.data?.services || []); // Corrigido para acessar a propriedade correta
             } catch (err) {
                 setError(err.response?.data?.msg || 'Erro ao remover serviço.');
             }
         }
     };
 
-    if (loading) return <p>Carregando serviços...</p>;
+    if (loading) return <p>Carregando...</p>;
 
     return (
         <div>
             <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Gerenciar Serviços</h2>
             
-            <form onSubmit={onSubmit} className="form-container" style={{ maxWidth: '600px', margin: 'auto' }}>
+            <div className="form-container" style={{ background: '#1c1c1c', padding: '20px', borderRadius: '8px', marginBottom: '40px' }}>
                 <h3>Adicionar Novo Serviço</h3>
-                <input type="text" name="name" value={formData.name} onChange={onChange} placeholder="Nome (ex: Corte Tesoura)" required />
-                <input type="number" name="price" value={formData.price} onChange={onChange} placeholder="Preço (ex: 40)" required />
-                <input type="number" name="duration" value={formData.duration} onChange={onChange} placeholder="Duração em minutos (ex: 30)" required />
-                <button type="submit" className="button-primary">Adicionar Serviço</button>
-                {error && <p className="error-message">{error}</p>}
-            </form>
+                <form onSubmit={onSubmit}>
+                    <input type="text" name="name" value={formData.name} onChange={onChange} placeholder="Nome (ex: Corte Tesoura)" required />
+                    <input type="number" name="price" value={formData.price} onChange={onChange} placeholder="Preço (ex: 40)" required style={{marginTop: '1rem'}} />
+                    <input type="number" name="duration" value={formData.duration} onChange={onChange} placeholder="Duração em minutos (ex: 30)" required style={{marginTop: '1rem'}} />
 
-            <hr style={{ margin: '40px 0', borderColor: '#333' }} />
+                    <div style={{ marginTop: '1rem' }}>
+                        <label>Quais funcionários realizam este serviço?</label>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', background: '#333', padding: '15px', borderRadius: '8px' }}>
+                            {employees.length > 0 ? employees.map(emp => (
+                                <div key={emp._id}>
+                                    <input type="checkbox" id={emp._id} value={emp._id} checked={selectedEmployees.includes(emp._id)} onChange={() => handleEmployeeSelection(emp._id)} />
+                                    <label htmlFor={emp._id} style={{ marginLeft: '10px' }}>{emp.name}</label>
+                                </div>
+                            )) : <p>Nenhum funcionário cadastrado.</p>}
+                        </div>
+                    </div>
+                    <button type="submit" className="button-primary" style={{marginTop: '1rem'}}>Adicionar Serviço</button>
+                    {error && <p className="error-message">{error}</p>}
+                </form>
+            </div>
 
             <div className="services-list">
                 <h3>Serviços Cadastrados</h3>
                 {services.length === 0 ? (
-                    <p>Nenhum serviço cadastrado ainda.</p>
+                    <p style={{ textAlign: 'center' }}>Nenhum serviço cadastrado ainda.</p>
                 ) : (
-                    <ul style={{ listStyle: 'none', padding: 0 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         {services.map((service) => (
-                            <li key={service._id} style={{ background: '#222', padding: '15px', borderRadius: '8px', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div>
-                                    <span style={{ fontWeight: 'bold' }}>{service.name}</span><br />
-                                    <span style={{ color: '#aaa' }}>R$ {service.price.toFixed(2)} - {service.duration} min</span>
+                            // AQUI ESTÁ A CORREÇÃO: Usamos </div> para fechar o card
+                            <div key={service._id} className="service-card">
+                                <div className="service-info">
+                                    <p className="service-name">{service.name}</p>
+                                    <p className="service-details">R$ {service.price.toFixed(2)} - {service.duration} min</p>
+                                    <div className="service-employees">
+                                        <strong>Profissionais:</strong> {service.employees?.map(emp => emp.name).join(', ') || 'Nenhum associado'}
+                                    </div>
                                 </div>
-                                {/* BOTÃO DE REMOVER ADICIONADO AQUI */}
-                                <button onClick={() => handleDelete(service._id)} style={{ background: '#c0392b', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer' }}>
-                                    Remover
-                                </button>
-                            </li>
+                                <div className="service-actions">
+                                    <button onClick={() => handleDelete(service._id)} className="delete-btn">
+                                        Remover
+                                    </button>
+                                </div>
+                            </div>
                         ))}
-                    </ul>
+                    </div>
                 )}
             </div>
         </div>

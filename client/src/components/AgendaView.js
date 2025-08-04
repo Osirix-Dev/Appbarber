@@ -6,11 +6,8 @@ import api from '../api/axiosConfig';
 const AgendaView = () => {
     const [allAppointments, setAllAppointments] = useState([]);
     const [employees, setEmployees] = useState([]);
-    
-    // Estados para os filtros
     const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
     const [selectedDate, setSelectedDate] = useState('');
-
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -46,62 +43,47 @@ const AgendaView = () => {
     });
 
     if (loading) return <p>Carregando agendamentos...</p>;
-    if (error) return <p style={{ color: '#e74c3c' }}>{error}</p>;
+    if (error) return <p className="error-message">{error}</p>;
 
     return (
         <div>
             <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Meus Agendamentos</h2>
 
-            <div className="filter-section" style={{ display: 'flex', alignItems: 'flex-end', gap: '20px', marginBottom: '30px' }}>
-                {/* Filtro por Profissional com o novo invólucro */}
-                <div>
-                    <label htmlFor="employee-filter" style={{ display: 'block', marginBottom: '5px' }}>Profissional:</label>
+            <div className="filter-section">
+                <div className="filter-group">
+                    <label htmlFor="employee-filter">Profissional:</label>
                     <div className="select-wrapper">
-                        <select 
-                            id="employee-filter"
-                            value={selectedEmployeeId}
-                            onChange={(e) => setSelectedEmployeeId(e.target.value)}
-                            className="custom-select"
-                        >
+                        <select id="employee-filter" value={selectedEmployeeId} onChange={(e) => setSelectedEmployeeId(e.target.value)} className="custom-select">
                             <option value="">Todos</option>
-                            {employees.map(emp => (
-                                <option key={emp._id} value={emp._id}>{emp.name}</option>
-                            ))}
+                            {employees.map(emp => (<option key={emp._id} value={emp._id}>{emp.name}</option>))}
                         </select>
                     </div>
                 </div>
 
-                {/* Filtro por Dia com o mini calendário */}
-                <div>
-                    <label htmlFor="date-filter" style={{ display: 'block', marginBottom: '5px' }}>Dia:</label>
-                    <input 
-                        type="date"
-                        id="date-filter"
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
-                        className="custom-date-input"
-                    />
+                <div className="filter-group">
+                    <label htmlFor="date-filter">Dia:</label>
+                    <input type="date" id="date-filter" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="custom-date-input" />
                 </div>
                 
-                {/* Botão para limpar o filtro de data */}
                 <button onClick={() => setSelectedDate('')} className="button-secondary" style={{width: 'auto', height: 'fit-content'}}>
                     Limpar Data
                 </button>
             </div>
 
-            {/* Lista de agendamentos filtrados */}
             {filteredAppointments.length === 0 ? (
-                <p>Nenhum agendamento encontrado para esta seleção.</p>
+                <p style={{ textAlign: 'center' }}>Nenhum agendamento encontrado para esta seleção.</p>
             ) : (
-                <div className="appointments-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div className="appointments-list">
                     {filteredAppointments.map(appt => (
-                        <div key={appt._id} style={{ background: '#222', padding: '15px', borderRadius: '8px' }}>
-                            <p style={{ margin: 0, fontWeight: 'bold', fontSize: '1.1rem' }}>
-                                Data: {formatDate(appt.date)} às {appt.time}
+                        <div key={appt._id} className="appointment-card">
+                            <p className="appointment-header">
+                                {formatDate(appt.date)} às {appt.time}
                             </p>
-                            <p style={{ margin: '5px 0' }}>Cliente: {appt.clientName}</p>
-                            <p style={{ margin: '5px 0' }}>Telefone: {appt.clientPhone}</p>
-                            <p style={{ margin: '5px 0' }}>Serviço: {appt.serviceName}</p>
+                            <div className="appointment-details">
+                                <p><strong>Cliente:</strong> {appt.clientName}</p>
+                                <p><strong>Telefone:</strong> {appt.clientPhone}</p>
+                                <p><strong>Serviço:</strong> {appt.serviceName}</p>
+                            </div>
                         </div>
                     ))}
                 </div>

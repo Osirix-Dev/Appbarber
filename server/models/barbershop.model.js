@@ -26,13 +26,15 @@ const BarbershopSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    services: [
-        {
-            name: { type: String, required: true },
-            price: { type: Number, required: true },
-            duration: { type: Number, required: true }
-        }
-    ], // <--- AQUI ESTÁ A VÍRGULA CORRIGIDA
+   services: [{
+    name: { type: String, required: true },
+    price: { type: Number, required: true },
+    duration: { type: Number, required: true },
+    employees: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Employee'
+    }]
+}],
 
     operatingHours: {
         type: Map,
